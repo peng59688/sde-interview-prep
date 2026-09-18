@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="icon" href="data:," />
+  <title>SDE 面试备战计划生成器</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+SC:wght@400;500;600;700&display=swap');
+    :root{
+      color-scheme:light dark;
+      --bg:#f4f6f2;--surface:#ffffff;--surface-2:#edf0ea;--text:#17211d;--muted:#56645e;
+      --line:#ccd4ce;--strong:#0c352c;--accent:#e6532f;--accent-2:#0d7b68;--accent-soft:#ffe7df;
+      --ok:#16745e;--code:#1d6d91;--design:#b54a2d;--ai:#6f5b22;--behavior:#784c71;
+      --shadow:0 18px 44px rgba(22,38,31,.09);
+    }
+    @media(prefers-color-scheme:dark){:root{
+      --bg:#101512;--surface:#18201c;--surface-2:#202a25;--text:#edf4ef;--muted:#a9b8b0;
+      --line:#35413b;--strong:#d7efe5;--accent:#ff7555;--accent-2:#42c5a4;--accent-soft:#41251f;
+      --ok:#58d3af;--code:#79c8eb;--design:#ff8b6f;--ai:#ddc267;--behavior:#dca6d3;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
+    }}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:"IBM Plex Sans SC","PingFang SC",sans-serif;line-height:1.55}
+    button,select,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent }
+    .shell{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:42px 0 80px}
+    .intro{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.75fr);gap:42px;align-items:end;margin-bottom:28px}
+    .intro h1{font-size:clamp(34px,5vw,62px);line-height:1.02;letter-spacing:-.045em;max-width:800px;margin:0 0 18px;font-weight:700}
+    .intro h1 em{font-style:normal;color:var(--accent)}
+    .intro p{font-size:17px;color:var(--muted);margin:0;max-width:700px}
+    .manifesto{border-top:4px solid var(--strong);padding-top:14px;color:var(--muted);font-size:14px}
+    .manifesto strong{display:block;color:var(--text);font-size:16px;margin-bottom:5px}
+    .builder{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);padding:24px;display:grid;grid-template-columns:1.4fr 1fr .7fr auto;gap:16px;align-items:end}
+    label{display:grid;gap:8px;font-weight:600;font-size:13px}.label-note{font-weight:400;color:var(--muted)}
+    select{width:100%;height:46px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);padding:0 38px 0 13px;border-radius:4px}
+    .primary{height:46px;border:0;background:var(--accent);color:#fff;font-weight:700;padding:0 22px;cursor:pointer;border-radius:4px}.primary:hover{filter:brightness(.96)}
+    .result{margin-top:34px;display:none}.result.live{display:block}
+    .summary{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;border-bottom:1px solid var(--line);padding-bottom:22px}
+    .summary h2{font-size:clamp(26px,4vw,42px);letter-spacing:-.035em;line-height:1.08;margin:0 0 9px}.summary p{margin:0;color:var(--muted)}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.pill{padding:6px 9px;background:var(--surface-2);border-radius:3px;font:600 12px/1.2 "IBM Plex Mono",monospace;color:var(--strong)}
+    .progressbox{min-width:240px}.progressline{height:10px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}.progressline i{display:block;height:100%;width:0;background:var(--accent-2);transition:width .25s ease}.progresscopy{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--muted)}
+    .toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0 22px}.tool{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:9px 12px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:600}.tool:hover{border-color:var(--accent-2);color:var(--accent-2)}
+    .note{font-size:12px;color:var(--muted);align-self:center}.weeknav{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 20px}.weekbtn{border:1px solid var(--line);background:transparent;color:var(--muted);padding:9px 13px;border-radius:3px;cursor:pointer;font:600 12px "IBM Plex Mono",monospace}.weekbtn.active{background:var(--strong);border-color:var(--strong);color:var(--bg)}
+    .weekhead{display:grid;grid-template-columns:100px 1fr;gap:20px;align-items:start;margin:30px 0 18px}.weekcode{font:600 36px/1 "IBM Plex Mono",monospace;color:var(--accent)}.weekhead h3{font-size:24px;margin:0 0 5px}.weekhead p{margin:0;color:var(--muted)}
+    .days{display:grid;gap:12px}.day{background:var(--surface);border:1px solid var(--line);display:grid;grid-template-columns:112px 1fr}.day-side{padding:20px 16px;border-right:1px solid var(--line);background:var(--surface-2)}.day-side b{display:block;font:600 13px "IBM Plex Mono",monospace;color:var(--accent)}.day-side span{font-size:12px;color:var(--muted)}
+    .day-main{padding:18px 20px}.day-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.day-title h4{font-size:17px;margin:0}.minutes{font:600 12px "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap}
+    .task{display:grid;grid-template-columns:24px 1fr;gap:11px;padding:13px 0;border-top:1px solid var(--line)}.task:first-of-type{border-top:0}
+    .task input{appearance:none;width:20px;height:20px;border:1.5px solid var(--line);background:var(--surface);margin:2px 0 0;cursor:pointer;position:relative;border-radius:2px}.task input:checked{background:var(--accent-2);border-color:var(--accent-2)}.task input:checked:after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg)}
+    .task.done .task-body{opacity:.62}.task.done .task-name{text-decoration:line-through}.taskline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.kind{font:600 10px "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.04em}.kind.coding{color:var(--code)}.kind.design{color:var(--design)}.kind.ai{color:var(--ai)}.kind.behavior{color:var(--behavior)}.task-name{font-weight:700}.time{color:var(--muted);font-size:12px}.task p{margin:5px 0;color:var(--muted);font-size:14px}.criteria{margin-top:7px;font-size:13px}.criteria strong{color:var(--text)}.resource{display:inline-flex;align-items:center;gap:5px;color:var(--accent-2);font-weight:700;font-size:13px;text-decoration:none}.resource:hover{text-decoration:underline}.resource:after{content:"↗"}
+    .empty{background:var(--surface);border:1px solid var(--line);padding:28px;color:var(--muted)}
+    .toast{position:fixed;right:20px;bottom:20px;background:var(--strong);color:var(--bg);padding:12px 16px;border-radius:4px;box-shadow:var(--shadow);transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s}.toast.show{transform:translateY(0);opacity:1}
+    @media(max-width:820px){.intro{grid-template-columns:1fr;gap:22px}.builder{grid-template-columns:1fr 1fr}.builder .primary{grid-column:1/-1}.summary{grid-template-columns:1fr}.progressbox{min-width:0}.shell{width:min(100% - 24px,1180px);padding-top:26px}}
+    @media(max-width:560px){.builder{grid-template-columns:1fr;padding:18px}.builder .primary{grid-column:auto}.day{grid-template-columns:1fr}.day-side{border-right:0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}.day-main{padding:14px}.weekhead{grid-template-columns:1fr;gap:6px}.intro h1{font-size:38px}.toolbar{display:grid;grid-template-columns:1fr 1fr}.tool{width:100%}.note{grid-column:1/-1}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+    @media print{.builder,.toolbar,.weeknav,.manifesto,.toast{display:none!important}.result{display:block!important}.week{display:block!important;break-before:page}.day{break-inside:avoid;box-shadow:none}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <section class="intro">
+    <div>
+      <h1>把面试变成一张<br><em>可执行的日历。</em></h1>
+      <p>选方向、轮次和周数，生成逐日 SDE 备战计划。每项都有时间盒、练习入口与明确完成标准。</p>
+    </div>
+    <aside class="manifesto"><strong>先会做，再会讲，最后压时间。</strong>Screen 重 Coding；Onsite 增加 System Design、项目深挖与行为面试。AI 不是装饰，而是一组可验证的练习。</aside>
+  </section>
+
+  <section class="builder" aria-label="计划设置">
+    <label>目标岗位方向
+      <select id="track">
+        <option value="general">通用 SDE</option><option value="backend">Backend SDE</option><option value="aiinfra">SDE · AI Infra</option><option value="infra">SDE · Infra</option><option value="data">SDE · Data</option>
+      </select>
+    </label>
+    <label>面试轮次
+      <select id="round"><option value="screen">Technical Screen</option><option value="onsite">Onsite Loop</option></select>
+    </label>
+    <label>可备战周数
+      <select id="weeks"></select>
+    </label>
+    <button class="primary" id="generate">生成计划</button>
+  </section>
+
+  <section id="result" class="result" aria-live="polite">
+    <div class="summary">
+      <div><h2 id="planTitle"></h2><p id="planDesc"></p><div class="meta" id="meta"></div></div>
+      <div class="progressbox"><div class="progressline"><i id="progressBar"></i></div><div class="progresscopy"><span id="progressText">0 / 0</span><strong id="progressPct">0%</strong></div></div>
+    </div>
+    <div class="toolbar">
+      <button class="tool" id="exportMd">下载 Markdown 计划</button>
+      <button class="tool" id="exportProgress">导出进度</button>
+      <button class="tool" id="importProgress">导入进度</button>
+      <button class="tool" id="resetProgress">清空勾选</button>
+      <input id="progressFile" type="file" accept="application/json,.json" hidden />
+      <span class="note">勾选进度仅保留在当前会话内存中；跨会话请导出 JSON，并在下次导入恢复。</span>
+    </div>
+    <nav class="weeknav" id="weeknav" aria-label="周次"></nav>
+    <div id="plan"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const LINKS={
+  blind:'https://leetcode.com/discuss/post/460599/blind-75-leetcode-questions-by-krishnade-9xev/',
+  twoSum:'https://github.com/doocs/leetcode/blob/main/solution/0000-0099/0001.Two%20Sum/README_EN.md',
+  islands:'https://github.com/ecgan/leetcode/blob/HEAD/problems/number-of-islands/README.md',
+  course:'https://github.com/satwik-2005/leetcode/blob/HEAD/LeetCode/Java/Medium/207.%20Course%20Schedule/README.md',
+  merge:'https://github.com/dragonsenses/algorithms/blob/HEAD/LeetCode/56-merge-intervals/problem.md',
+  lru:'https://leetcode.com/problems/lru-cache/',
+  topk:'https://leetcode.com/problems/top-k-frequent-elements/',
+  sliding:'https://github.com/lightning4747/leetcode/blob/HEAD/Placement/239%20–%20Sliding%20Window%20Maximum.md',
+  timemap:'https://github.com/nyameteor/leetcode/blob/HEAD/problems/time-based-key-value-store/README.md',
+  cpu:'https://github.com/kid-yp/a2sv_solved_questions/blob/HEAD/leetcode/1834-single-threaded-cpu/README.md',
+  sys:'https://github.com/ashishps1/awesome-system-design-resources/blob/main/README.md',
+  syslab:'https://github.com/Ayoush/system-design-lab',
+  deep:'https://github.com/harut8/system-design',
+  ai:'https://huggingface.co/learn/llm-course/chapter1/1',
+  copilot:'https://docs.github.com/en/copilot/how-tos/chat-with-copilot/get-started-with-chat',
+  evals:'https://github.com/openai/evals',
+  vllm:'https://docs.cloud.google.com/kubernetes-engine/docs/best-practices/machine-learning/inference/llm-optimization',
+  star:'https://capd.mit.edu/resources/the-star-method-for-behavioral-interviews/'
+};
+const trackNames={general:'通用 SDE',backend:'Backend SDE',aiinfra:'SDE · AI Infra',infra:'SDE · Infra',data:'SDE · Data'};
+const codingBase=[
+  ['LC 1 · Two Sum','Hash Map：先定义 complement invariant，再用一次扫描完成',LINKS.twoSum,'写出 O(n) 解法；口述空输入、重复数、负数测试'],
+  ['LC 49 · Group Anagrams','Hash Key 设计：排序串 vs 26 位计数向量',LINKS.blind,'写出两种 key；比较时间与空间复杂度'],
+  ['LC 238 · Product of Array Except Self','Prefix / suffix product；禁止除法',LINKS.blind,'O(n) 时间、O(1) 额外空间；覆盖 0 与负数'],
+  ['LC 3 · Longest Substring Without Repeating Characters','Sliding Window：明确窗口内无重复字符的 invariant',LINKS.blind,'20 分钟内完成；手算窗口左右指针移动'],
+  ['LC 56 · Merge Intervals','Sort + sweep；说明闭区间边界',LINKS.merge,'O(n log n)；覆盖相接、嵌套、单区间'],
+  ['LC 347 · Top K Frequent Elements','Heap 与 bucket sort 两解',LINKS.topk,'先写 O(n log k)，再口述 O(n) bucket 解'],
+  ['LC 200 · Number of Islands','Grid DFS/BFS 与 visited 策略',LINKS.islands,'25 分钟内完成；说明递归栈最坏空间'],
+  ['LC 207 · Course Schedule','Kahn topological sort 与 cycle detection',LINKS.course,'正确构建入度；覆盖 disconnected graph'],
+  ['LC 146 · LRU Cache','Hash Map + doubly linked list',LINKS.lru,'get/put 平均 O(1)；主动处理 capacity=1'],
+  ['LC 239 · Sliding Window Maximum','Monotonic deque：只保留潜在最大值',LINKS.sliding,'O(n)；解释每个元素最多入队出队一次'],
+  ['LC 981 · Time Based Key-Value Store','Hash Map + sorted timestamps + binary search',LINKS.timemap,'set O(1)，get O(log n)；覆盖早于首个时间戳'],
+  ['LC 1834 · Single-Threaded CPU','Event simulation + min-heap 调度',LINKS.cpu,'维护真实时间跳跃；正确处理相同耗时 tie-break'],
+  ['LC 322 · Coin Change','一维 DP：状态、转移、初始化',LINKS.blind,'写出 bottom-up；说明无法组成金额的返回值'],
+  ['LC 124 · Binary Tree Maximum Path Sum','Postorder DFS；区分向上贡献与全局答案',LINKS.blind,'覆盖全负数树；说明 O(n)'],
+  ['LC 208 · Implement Trie','Prefix tree API 与空间权衡',LINKS.blind,'实现 insert/search/startsWith；写 4 个单测']
+];
+const pools={
+  general:[0,1,2,3,4,5,6,7,8,9,12,13,14],
+  backend:[0,3,4,5,7,8,9,10,11,6,12,14,2],
+  aiinfra:[0,1,5,6,7,8,9,10,11,12,13,14,3],
+  infra:[0,4,5,6,7,8,9,10,11,12,14,3,2],
+  data:[0,1,2,3,4,5,7,9,10,11,12,6,8]
+};
+const designs={
+ general:[['Design URL Shortener','定需求与容量；URL→code schema；cache；一致性哈希；热点与过期'],['Design Notification Service','API、模板、队列、provider retry、去重、用户偏好、DLQ'],['Design News Feed','fan-out on write/read、timeline cache、celebrity hotspot、pagination'],['Design Distributed Cache','一致性哈希、replication、eviction、cache stampede、failover'],['Design Rate Limiter','token bucket vs sliding window；Redis 原子计数；多区域限流'],['Design Chat Service','WebSocket、presence、消息顺序、离线投递、分片'],['Design File Storage','metadata/data split、chunking、dedupe、upload resume、CDN'],['Design Job Scheduler','延迟队列、lease、retry、幂等、分区与公平性']],
+ backend:[['Design Idempotent Order API','idempotency key、唯一索引、状态机、timeout/retry、审计日志'],['Design Payment Workflow','ledger、双重记账、Saga/compensation、reconciliation、webhook'],['Design API Gateway','auth、rate limit、routing、circuit breaker、observability'],['Design Distributed Cache','read-through/write-through、TTL、热点 key、失效策略'],['Design Event Bus','partition key、ordering、consumer group、replay、DLQ'],['Design Search Autocomplete','prefix index、ranking、cache、incremental update'],['Design Webhook Platform','signing、delivery retry、idempotency、backoff、tenant isolation'],['Design Order Status Stream','outbox + CDC、at-least-once、消费者幂等、状态回放']],
+ aiinfra:[['Design LLM Serving Gateway','model routing、streaming、rate limit、tenant quota、fallback'],['Design Dynamic Batching','prefill/decode、batch window、tail latency、GPU utilization'],['Design GPU Scheduler','bin packing、gang scheduling、priority、preemption、fault recovery'],['Design Vector Retrieval Service','chunking、embedding version、ANN index、filter、rerank'],['Design Prompt & Model Registry','versioning、rollout、lineage、access control、rollback'],['Design Evaluation Pipeline','offline dataset、metric、human review、regression gate、drift'],['Design Feature Store','offline/online parity、point-in-time correct、TTL、backfill'],['Design AI Observability','TTFT/TPS、token cost、quality sample、trace、SLO']],
+ infra:[['Design Kubernetes-like Control Plane','desired state、reconcile loop、scheduler、etcd、watch'],['Design Service Discovery','registration、health check、DNS/sidecar、stale endpoint、failover'],['Design Multi-region Failover','active-active vs active-passive、RTO/RPO、traffic shift、data lag'],['Design Metrics Platform','high-cardinality ingestion、downsampling、retention、query fan-out'],['Design Deployment System','artifact、canary、health gate、rollback、audit'],['Design Distributed Lock','lease、fencing token、clock assumption、session expiry'],['Design Cloud Job Scheduler','queue、worker lease、retry、fairness、noisy neighbor'],['Design Secrets Distribution','envelope encryption、rotation、identity、cache、audit']],
+ data:[['Design Event Ingestion Pipeline','schema registry、partition、backpressure、replay、DLQ'],['Design Batch + Stream Analytics','Lambda/Kappa trade-off、watermark、late data、dedupe'],['Design Data Warehouse Model','fact/dimension、grain、SCD、partition、quality tests'],['Design CDC Platform','snapshot、log position、schema change、ordering、recovery'],['Design Exactly-once Aggregation','checkpoint、idempotent sink、transaction boundary、replay'],['Design Workflow Orchestrator','DAG、dependency、retry、backfill、SLA'],['Design Lakehouse','object storage、table format、compaction、metadata、time travel'],['Design Metrics Pipeline','event contract、aggregation、cardinality、retention、serving layer']]
+};
+const aiConcepts={
+ light:[['LLM 基础：tokens / context / attention','画出 prompt→tokenize→attention→decode 链路；能解释 temperature 与 context window'],['RAG 基础','写清 ingest、chunk、embed、retrieve、rerank、generate 六步；列出 3 个失败模式'],['AI Evaluation','为一个问答功能定义 accuracy、groundedness、latency、cost 四类指标'],['Inference trade-offs','比较 batching、caching、quantization 对 latency/throughput/quality 的影响']],
+ deep:[['Transformer execution path','从 tokenization 到 KV cache，口述 prefill 与 decode 的计算差异'],['Serving performance','解释 TTFT、ITL、throughput、GPU utilization；给出监控面板草图'],['Parallelism & memory','比较 tensor/pipeline/data parallel；估算模型权重与 KV cache 内存'],['RAG retrieval stack','讨论 chunk、ANN、hybrid search、rerank、embedding version'],['Evaluation & rollout','构建离线 eval set、online experiment、regression gate 与 rollback'],['Inference optimization','比较 continuous batching、prefix cache、quantization、speculative decoding']]
+};
+const aiCoding=[
+ ['AI 辅助需求澄清','把一道题交给 AI，只让它追问约束，不给解法；你回答后再写接口与测试'],
+ ['AI 做 code review','先独立完成代码，再让 AI 只找 bug/edge cases；逐条验证，不直接接受修改'],
+ ['AI 生成测试','给 AI 函数签名与约束，让它生成边界/性质测试；你解释每个测试为何必要'],
+ ['AI 对抗调试','故意植入 off-by-one / stale cache / retry bug，让 AI 定位；记录它漏掉的线索'],
+ ['AI 比较两种方案','让 AI 为两种算法列 trade-off；你用复杂度与约束反驳至少一条'],
+ ['AI 模拟 interviewer','要求 AI 每次只问一个 follow-up；你用 30 秒澄清、5 分钟方案、20 分钟代码'],
+ ['AI 重构 legacy code','让 AI 提议最小改动；你补 regression tests 并拒绝无证据重写'],
+ ['AI 生成 design review','输入你的架构摘要，让 AI 扮演 SRE/DBA/安全评审，各给 3 个挑战']
+];
+const behaviors=[
+ ['项目总览（2 分钟）','准备一个最强项目：背景 15 秒、目标 15 秒、架构 45 秒、个人贡献 30 秒、结果 15 秒'],
+ ['冲突与影响力','用 STAR 准备“没有直接权限却推动方案”的故事；Action 占回答一半以上'],
+ ['失败与复盘','讲清错误判断、发现信号、止损动作、机制改进；避免把责任推给别人'],
+ ['高压交付','覆盖 trade-off、scope cut、风险沟通、质量护栏与量化结果'],
+ ['技术决策','准备一次数据库/架构选型；明确候选、约束、证据与后续修正'],
+ ['Ownership','准备一次从模糊问题到落地运营的故事，包含上线后指标与故障处理'],
+ ['跨团队协作','说明接口契约、分歧、决策机制、上线节奏与结果'],
+ ['项目 Deep Dive','画出项目架构；准备 scaling、failure、data consistency、安全四组追问']
+];
+const weekThemes=['建立基线','模式成组','速度与边界','系统取舍','深挖与表达','整轮模拟','查漏补缺','峰值状态'];
+const dayNames=['一','二','三','四','五','六','日'];
+let state={plan:[],done:new Set(),week:0,signature:''};
+
+for(let i=1;i<=8;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i} 周`;if(i===4)o.selected=true;document.querySelector('#weeks').append(o)}
+function pick(arr,i){return arr[i%arr.length]}
+function task(kind,title,detail,criteria,minutes,link){return{kind,title,detail,criteria,minutes,link}}
+function codingTask(track,index,mode='solve'){
+ const row=codingBase[pick(pools[track],index)];
+ const prefix=mode==='mock'?'计时 Mock · ':mode==='review'?'错题复练 · ':'';
+ const criteria=mode==='mock'?`${row[3]}；全程不查提示并保留最后 8 分钟测试`:mode==='review'?`${row[3]}；先口述错误根因，再从空白重写` : row[3];
+ return task('coding',prefix+row[0],row[1],criteria,mode==='mock'?55:50,row[2]);
+}
+function designTask(track,index,deep=false){
+ const d=pick(designs[track],index);return task('design',d[0],`按 45 分钟框架：5m requirements → 5m capacity → 8m API/data → 10m high-level → 12m deep dive → 5m failure。重点：${d[1]}`,`输出 1 张架构图、2 个 API、核心 schema、3 个瓶颈与 2 个明确 trade-off；${deep?'接受 10 分钟追问':'在 45 分钟内收口'}`,deep?65:55,index%3===0?LINKS.syslab:(index%3===1?LINKS.deep:LINKS.sys));
+}
+function aiConceptTask(track,index){const deep=track==='aiinfra';const a=pick(deep?aiConcepts.deep:aiConcepts.light,index);return task('ai',a[0],a[1],a[1]+'；用自己的话写 5 条复习卡片',deep?45:30,deep?(index%2?LINKS.vllm:LINKS.ai):LINKS.ai)}
+function aiCodingTask(index){const a=pick(aiCoding,index);return task('ai',a[0],a[1],'保留原始答案、AI 建议和最终版本；写下 1 条“AI 错在哪里/为何可信”',35,LINKS.copilot)}
+function behaviorTask(index,deep=false){const b=pick(behaviors,index);return task('behavior',b[0],b[1],`${deep?'录一版 3–4 分钟并接受 3 个追问':'录一版 2 分钟'}；结果必须量化，明确“我”做了什么`,deep?40:30,LINKS.star)}
+function reviewTask(week){return task('behavior','周复盘与下一周校准','统计按时完成率、卡住超过 15 分钟的问题、最薄弱的 2 个 pattern；把错题按“识别/方案/实现/测试”归因','产出下一周 3 条具体调整；把 2 道错题排入复练',35,LINKS.blind)}
+function makeDay(track,round,w,d,global){
+ let tasks=[];let focus='';
+ if(round==='screen'){
+   if(d<4){tasks=[codingTask(track,global),codingTask(track,global+5,d===3?'review':'solve')];focus=d===0?'Pattern 热身':d===1?'数据结构':d===2?'Graph / Search':'限时复练';}
+   else if(d===4){tasks=[codingTask(track,global+2,'mock'),aiCodingTask(global)];focus='CoderPad + AI Review';}
+   else if(d===5){tasks=[codingTask(track,global+7,'mock'),designTask(track,w,false)];focus='完整 Coding Mock';}
+   else{tasks=[reviewTask(w),behaviorTask(w,false),aiConceptTask(track,w)];focus='复盘与表达';}
+ }else{
+   if(d===0){tasks=[codingTask(track,global),designTask(track,w*2,true)];focus='Coding + Design';}
+   else if(d===1){tasks=[codingTask(track,global+3),aiConceptTask(track,global)];focus='算法 + AI 概念';}
+   else if(d===2){tasks=[designTask(track,w*2+1,true),behaviorTask(global,true)];focus='架构 + STAR';}
+   else if(d===3){tasks=[codingTask(track,global+6,'review'),aiCodingTask(global)];focus='复练 + AI Coding';}
+   else if(d===4){tasks=[designTask(track,w*2+2,true),codingTask(track,global+8)];focus='Deep Dive';}
+   else if(d===5){tasks=[codingTask(track,global+11,'mock'),designTask(track,w*2+3,true),behaviorTask(global+2,true)];focus='Onsite 半轮模拟';}
+   else{tasks=[reviewTask(w),aiConceptTask(track,global+2),behaviorTask(global+4,false)];focus='复盘与项目故事';}
+ }
+ return{week:w,day:d,global,focus,tasks,total:tasks.reduce((s,t)=>s+t.minutes,0)};
+}
+function generate(){
+ const track=document.querySelector('#track').value, round=document.querySelector('#round').value,weeks=+document.querySelector('#weeks').value;
+ const plan=[];for(let w=0;w<weeks;w++)for(let d=0;d<7;d++)plan.push(makeDay(track,round,w,d,w*7+d));
+ state={plan,done:new Set(),week:0,signature:`${track}-${round}-${weeks}`};
+ document.querySelector('#result').classList.add('live');
+ document.querySelector('#planTitle').textContent=`${weeks} 周 · ${trackNames[track]} · ${round==='screen'?'Technical Screen':'Onsite Loop'}`;
+ const ratio=round==='screen'?'Coding 约 65%，设计与表达穿插':'Coding 与 System Design 双主线，行为与 AI 稳定穿插';
+ document.querySelector('#planDesc').textContent=ratio+'。每周 7 天，第 7 天为轻量复盘。';
+ const totalMin=plan.reduce((s,d)=>s+d.total,0),totalTasks=plan.reduce((s,d)=>s+d.tasks.length,0);
+ document.querySelector('#meta').innerHTML=`<span class="pill">${plan.length} DAYS</span><span class="pill">${totalTasks} TASKS</span><span class="pill">≈ ${Math.round(totalMin/60)} HOURS</span>`;
+ renderWeekNav(weeks);renderWeek();updateProgress();
+ document.querySelector('#result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function renderWeekNav(count){const nav=document.querySelector('#weeknav');nav.innerHTML='';for(let i=0;i<count;i++){const b=document.createElement('button');b.className='weekbtn'+(i===state.week?' active':'');b.textContent=`W${String(i+1).padStart(2,'0')}`;b.onclick=()=>{state.week=i;renderWeekNav(count);renderWeek()};nav.append(b)}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function renderWeek(){
+ const days=state.plan.filter(d=>d.week===state.week),track=document.querySelector('#track').value;
+ const codingCount=days.flatMap(d=>d.tasks).filter(t=>t.kind==='coding').length,designCount=days.flatMap(d=>d.tasks).filter(t=>t.kind==='design').length;
+ let html=`<section class="week"><div class="weekhead"><div class="weekcode">W${String(state.week+1).padStart(2,'0')}</div><div><h3>${weekThemes[state.week]}</h3><p>${trackNames[track]} · 本周 ${codingCount} 个 Coding session / ${designCount} 个 System Design session；周六模拟，周日复盘。</p></div></div><div class="days">`;
+ days.forEach(day=>{html+=`<article class="day"><div class="day-side"><div><b>DAY ${String(day.global+1).padStart(2,'0')}</b><span>周${dayNames[day.day]}</span></div><span>${day.focus}</span></div><div class="day-main"><div class="day-title"><h4>${day.focus}</h4><span class="minutes">${day.total} MIN</span></div>`;
+ day.tasks.forEach((t,ti)=>{const id=`${state.signature}-${day.global}-${ti}`,done=state.done.has(id);html+=`<label class="task ${done?'done':''}"><input type="checkbox" data-id="${id}" ${done?'checked':''}><span class="task-body"><span class="taskline"><span class="kind ${t.kind}">${t.kind==='coding'?'CODING':t.kind==='design'?'SYSTEM DESIGN':t.kind==='ai'?'AI PRACTICE':'BEHAVIOR'}</span><span class="task-name">${esc(t.title)}</span><span class="time">${t.minutes} min</span></span><p>${esc(t.detail)}</p><div class="criteria"><strong>完成标准：</strong>${esc(t.criteria)}</div><a class="resource" href="${t.link}" target="_blank" rel="noopener noreferrer">打开资料</a></span></label>`});
+ html+='</div></article>'});html+='</div></section>';document.querySelector('#plan').innerHTML=html;
+ document.querySelectorAll('.task input').forEach(box=>box.addEventListener('change',e=>{const id=e.target.dataset.id;if(e.target.checked)state.done.add(id);else state.done.delete(id);e.target.closest('.task').classList.toggle('done',e.target.checked);updateProgress()}));
+}
+function updateProgress(){const total=state.plan.reduce((s,d)=>s+d.tasks.length,0),done=state.done.size,pct=total?Math.round(done/total*100):0;document.querySelector('#progressBar').style.width=pct+'%';document.querySelector('#progressText').textContent=`${done} / ${total}`;document.querySelector('#progressPct').textContent=pct+'%'}
+function download(name,text,type='text/plain'){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function exportMarkdown(){if(!state.plan.length)return;let md=`# ${document.querySelector('#planTitle').textContent}\n\n${document.querySelector('#planDesc').textContent}\n\n`;state.plan.forEach((d,i)=>{if(i===0||d.week!==state.plan[i-1].week)md+=`\n## W${String(d.week+1).padStart(2,'0')} · ${weekThemes[d.week]}\n\n`;md+=`### Day ${String(d.global+1).padStart(2,'0')} · ${d.focus} (${d.total} min)\n`;d.tasks.forEach((t,ti)=>{const id=`${state.signature}-${d.global}-${ti}`;md+=`- [${state.done.has(id)?'x':' '}] **${t.title}** · ${t.minutes} min\n  - ${t.detail}\n  - 完成标准：${t.criteria}\n  - 资料：${t.link}\n`});md+='\n'});download(`sde-interview-plan-${state.signature}.md`,md,'text/markdown')}
+function exportProgress(){if(!state.plan.length)return;download(`sde-progress-${state.signature}.json`,JSON.stringify({version:1,signature:state.signature,done:[...state.done]},null,2),'application/json');toast('进度文件已导出')}
+function importProgress(file){const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result);if(p.signature!==state.signature||!Array.isArray(p.done))throw new Error();state.done=new Set(p.done.filter(x=>typeof x==='string'));renderWeek();updateProgress();toast('进度已恢复')}catch{toast('文件与当前计划不匹配')}};r.readAsText(file)}
+function toast(msg){const t=document.querySelector('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+document.querySelector('#generate').onclick=generate;
+document.querySelector('#exportMd').onclick=exportMarkdown;
+document.querySelector('#exportProgress').onclick=exportProgress;
+document.querySelector('#importProgress').onclick=()=>document.querySelector('#progressFile').click();
+document.querySelector('#progressFile').onchange=e=>{if(e.target.files[0])importProgress(e.target.files[0]);e.target.value=''};
+document.querySelector('#resetProgress').onclick=()=>{state.done.clear();renderWeek();updateProgress();toast('本次勾选已清空')};
+generate();
+</script>
+</body>
+</html>
